@@ -13,6 +13,7 @@ import './App.css'
 
 import ApplicationContextProvider, { Updater as ApplicationContextUpdater } from './contexts/Application'
 import TokensContextProvider from './contexts/Tokens'
+import { CeramicProvider } from './contexts/Ceramic'
 
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 
@@ -39,11 +40,13 @@ const client = new ApolloClient({
 
 function ContextProviders({ children }) {
   return (
-    <ApplicationContextProvider>
-      <TokensContextProvider>
-        {children}
-      </TokensContextProvider>
-    </ApplicationContextProvider>
+    <CeramicProvider>
+      <ApplicationContextProvider>
+        <TokensContextProvider>
+          {children}
+        </TokensContextProvider>
+      </ApplicationContextProvider>
+    </CeramicProvider>
   )
 }
 

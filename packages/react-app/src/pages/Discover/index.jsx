@@ -1,56 +1,137 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useWeb3React } from '@web3-react/core'
 import styled from 'styled-components'
-import { useAlert } from 'react-alert'
-import { MainHeader } from '../../theme/components'
+import { usePeerList } from '../../hooks/useCeramicProfile'
+import PeerCard from '../../components/PeerCard'
 
 const DiscoverContainer = styled.div`
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  padding: 20px;
-  overflow-y: scroll;
-  background: #F9F8EB;
+  width: 100%;
+  min-height: 100vh;
+  padding: 2rem;
+  background: #f9f8eb;
   display: flex;
-  align-items: center;
-  justify-content: center;
-`
-
-const PlaceholderContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-direction: column;
   gap: 2rem;
+`
+
+const Header = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`
+
+const Title = styled.h1`
+  font-size: 2.5rem;
+  margin: 0;
+  color: ${({ theme }) => theme.primaryGreen};
+`
+
+const Subtitle = styled.p`
+  font-size: 1.1rem;
+  margin: 0;
+  color: #666;
+`
+
+const PeerGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  width: 100%;
+`
+
+const LoadingMessage = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  font-size: 1.2rem;
+  color: #666;
+`
+
+const ErrorMessage = styled.div`
+  background-color: #fee;
+  border: 1px solid #faa;
+  color: #a00;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+`
+
+const EmptyState = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 1rem;
   text-align: center;
 `
 
-const PlaceholderText = styled.p`
-  color: #333;
+const EmptyStateIcon = styled.div`
+  font-size: 4rem;
+  opacity: 0.5;
+`
+
+const EmptyStateText = styled.p`
   font-size: 1.2rem;
-  max-width: 600px;
+  color: #666;
+  max-width: 500px;
 `
 
 export function Discover() {
-  const { library, account } = useWeb3React()
-  const alert = useAlert()
+  const { account } = useWeb3React()
+  const { peers, loading, error } = usePeerList()
 
-  useEffect(() => {
-    console.log('Discover page placeholder - Phase 3: Replace 3box functionality')
-  }, [])
+  if (error) {
+    return (
+      <DiscoverContainer>
+        <Header>
+          <Title>Discover Experts</Title>
+          <Subtitle>Find peers to collaborate with</Subtitle>
+        </Header>
+        <ErrorMessage>
+          <strong>Error loading peers:</strong> {error}
+        </ErrorMessage>
+      </DiscoverContainer>
+    )
+  }
+
+  if (loading) {
+    return (
+      <DiscoverContainer>
+        <Header>
+          <Title>Discover Experts</Title>
+          <Subtitle>Find peers to collaborate with</Subtitle>
+        </Header>
+        <LoadingMessage>Loading peer profiles...</LoadingMessage>
+      </DiscoverContainer>
+    )
+  }
 
   return (
     <DiscoverContainer>
-      <PlaceholderContainer>
-        <MainHeader>Discover (Phase 3)</MainHeader>
-        <PlaceholderText>
-          This feature is under development as part of Phase 3 of the modernization.
-          It will be replaced with Ceramic/IDX or a wallet-based discovery system.
-        </PlaceholderText>
-        <PlaceholderText style={{ fontSize: '0.9rem', fontStyle: 'italic', color: '#666' }}>
-          The 3Box integration has been removed. Coming after Phase 3.
-        </PlaceholderText>
-      </PlaceholderContainer>
+      <Header>
+        <Title>Discover Experts</Title>
+        <Subtitle>Find peers to collaborate with on your next project</Subtitle>
+      </Header>
+
+      {peers.length === 0 ? (
+        <EmptyState>
+          <EmptyStateIcon>👥</EmptyStateIcon>
+          <EmptyStateText>
+            {account
+              ? 'No experts discovered yet. Create your profile to be discovered!'
+              : 'Connect your wallet to see expert profiles'}
+          </EmptyStateText>
+        </EmptyState>
+      ) : (
+        <PeerGrid>
+          {peers.map((peer) => (
+            <PeerCard key={peer.address} peer={peer} />
+          ))}
+        </PeerGrid>
+      )}
     </DiscoverContainer>
   )
 }

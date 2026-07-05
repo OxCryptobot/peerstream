@@ -1,174 +1,175 @@
-import React, { useState, useEffect } from 'react'
-import { useWeb3React } from '@web3-react/core'
-import Box from '3box'
+import React from 'react'
 import styled from 'styled-components'
-import { CTAButtonSecondary } from '../../theme/components'
 
-//socal icons
-import github_icon from '../../assets/img/icon-github.png'
-import twitter_icon from '../../assets/img/icon-twitter.png'
-import website_icon from '../../assets/img/icon-website.png'
-import threeBox_icon from '../../assets/img/icon-3box.png'
-
-const IPFS_URL = 'https://ipfs.infura.io/ipfs/'
-const TWITTER_URL = 'https://twitter.com/'
-const GITHUB_URL = 'https://github.com/'
-const THREEBOX_URL = 'https://3box.io/'
-
-const Card = styled.div`  
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  margin-left: 7%;
-  margin-right: 7%;
-  margin-bottom: 2%;
-  height: 285px;
-  background: #F9F8EB;
-  border: 1px solid ${({ theme }) => theme.primaryGreen};
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
-  box-sizing: border-box;
-  border-radius: 15px;
-`
-
-const CardDetails = styled.div`
+const Card = styled.div`
   display: flex;
   flex-direction: column;
-  height: 80%;
-  justify-content: center;
-  padding-left: 10%;
+  background: white;
+  border: 1px solid ${({ theme }) => theme.secondaryGreen};
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 1rem;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: ${({ theme }) => theme.primaryGreen};
+    transform: translateY(-2px);
+  }
 `
 
-const CardIconsAndButtons = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 80%;
-  justify-content: center;
-  align-items: center;
-  width: 30%;
-`
-
-const ProfilePic = styled.img`
-  margin-left: 2%;
-  width: 20%;
-  height: 80%;
-  border: 3px solid #000000;
+const Avatar = styled.div`
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
+  background: linear-gradient(135deg, ${({ theme }) => theme.primaryGreen}, ${({ theme }) => theme.secondaryGreen});
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 auto;
 `
 
 const Name = styled.h3`
-  font-family: Ubuntu;
-  font-style: normal;
-  font-weight: bold;
-  font-size: 1.5rem;
-  line-height: 41px;
+  margin: 0;
+  font-size: 1.2rem;
   color: ${({ theme }) => theme.primaryGreen};
+  text-align: center;
+  word-break: break-all;
 `
 
-const SkillDescription = styled.p`
-  font-family: Ubuntu;
-  color: ${({ theme }) => theme.primaryGreen};
+const Address = styled.p`
+  margin: 0;
+  font-size: 0.75rem;
+  color: #999;
+  text-align: center;
+  font-family: monospace;
+  word-break: break-all;
 `
 
-const SocialIconContainer = styled.div`
+const Bio = styled.p`
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+  line-height: 1.4;
+  text-align: center;
+`
+
+const Expertise = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   justify-content: center;
-  margin-bottom: 20%;
+  margin-top: 0.5rem;
 `
 
-const SocialIcon = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+const Tag = styled.span`
+  background-color: ${({ theme }) => theme.tertiaryGreen};
+  color: ${({ theme }) => theme.primaryGreen};
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
 `
 
-export default function PeerCard({ space, peer, configureStream, createNewConfidentialThread, dmThread, setActiveChat, openChatModal, mainThread, viewMessages }) {
+const Rate = styled.p`
+  margin: 0.5rem 0 0 0;
+  font-weight: bold;
+  color: ${({ theme }) => theme.primaryGreen};
+  text-align: center;
+`
 
-  const { account } = useWeb3React()
-  
-  const [showLoader, setShowLoader] = useState(false)
-  const [profile, setProfile] = useState({})
-  const [profileImg, setProfileImg] = useState('')
-  const [verifiedAccounts, setVerifiedAccounts] = useState([])
-  const [loading, setLoading] = useState(true)
-  
-  // populate card with 3box profile from given ethereum address
-  useEffect(() => {
-    setLoading(true)
-    async function fetchProfile() {
-      const profile = await Box.getProfile(peer.address)
-      return profile
-    }
-    async function fetchVerifiedAccounts(profile) {
-      const accounts = await Box.getVerifiedAccounts(profile)
-      return accounts
-    }
-    let isSubscribed = true
-    if (isSubscribed) {
-      fetchProfile(peer.address).then((result) => {
-        setProfile(result)
-        result.image ? setProfileImg(result.image[0].contentUrl['/']) : setProfileImg('')
-        fetchVerifiedAccounts(result).then((accounts) => setVerifiedAccounts(accounts))
-        setLoading(false)
-      }).catch(err => isSubscribed ? console.log(err) : null)
-    }
-    return () => (isSubscribed = false)
-  }, [peer])
-  
-    return (
-      <Card>
-        {profileImg !== "" ? <ProfilePic src={IPFS_URL + profileImg} alt={profileImg}></ProfilePic> : <ProfilePic src={threeBox_icon} alt={profileImg}></ProfilePic>}
-        <CardDetails>
-          <Name>{profile.name && profile.name !== "" ? profile.name : peer.address}</Name>
-          <SkillDescription>{peer.message}</SkillDescription>
-        </CardDetails>
-        <CardIconsAndButtons>
-          <SocialIconContainer>
-            {verifiedAccounts.github ? <a href={GITHUB_URL + verifiedAccounts.github.username} rel="noopener noreferrer" target="_blank"><SocialIcon src={github_icon} alt={verifiedAccounts.github.proof}></SocialIcon></a> : null}
-            {verifiedAccounts.twitter ? <a href={TWITTER_URL + verifiedAccounts.twitter.username} rel="noopener noreferrer" target="_blank"><SocialIcon src={twitter_icon} alt={verifiedAccounts.twitter.proof}></SocialIcon></a> : null}
-            {profile.website ? <a href={profile.website} rel="noopener noreferrer" target="_blank"><SocialIcon src={website_icon} alt={profile.website}></SocialIcon></a> : null}
-            <a href={THREEBOX_URL + peer.address} rel="noopener noreferrer" target="_blank"><SocialIcon src={threeBox_icon} alt={peer.address}></SocialIcon></a>
-          </SocialIconContainer>
-          { Object.keys(space).length > 0 && peer.address !== account ? 
+const Social = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+`
 
-            dmThread.length > 0 ? 
+const SocialLink = styled.a`
+  color: ${({ theme }) => theme.primaryGreen};
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid ${({ theme }) => theme.primaryGreen};
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
 
-              // if a DM thread with this peer already exists, join it
-              <CTAButtonSecondary onClick={async () => {
-                const thread = await space.joinThreadByAddress(dmThread[0].message.split(' ')[1])
-                const posts = await thread.getPosts()
-                setActiveChat(thread, posts)
-                openChatModal()}}>
-                Message
-              </CTAButtonSecondary> :
+  &:hover {
+    background-color: ${({ theme }) => theme.primaryGreen};
+    color: white;
+  }
+`
 
-              // if a DM thread with this peer does not already exist, create one
-              <CTAButtonSecondary onClick={async () => {
-                const thread = await space.createConfidentialThread('stream-dms-' + peer.address)
-                await thread.addMember(peer.address)
-                const posts = await thread.getPosts()
-                const newThread = { threadAddress: thread.address, sender: account, recipient: peer.address }
-                createNewConfidentialThread(newThread)
-                setActiveChat(thread, posts)
-                openChatModal()}}>
-                Reach out
-              </CTAButtonSecondary> :
+const getInitials = (name, address) => {
+  if (name) {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase()
+  }
+  return address.slice(2, 4).toUpperCase()
+}
 
-            peer.address !== account ? <><CTAButtonSecondary disabled>
-              Reach out
-              <p className="hoverMessage">Sign in with 3Box to reach out to this peer</p>
-            </CTAButtonSecondary></> : null }
-            
-            <CTAButtonSecondary onClick={configureStream}>Start Stream</CTAButtonSecondary>
-            { peer.address === account && Object.keys(space).length ?
-              <>
-                <CTAButtonSecondary onClick={viewMessages}>
-                  View Messages
-                </CTAButtonSecondary> 
-                <button onClick={async () => await mainThread.deletePost(peer.postId)}>Remove myself from list</button>
-              </> : null }
-        </CardIconsAndButtons>
-      </Card>
-    )
+const truncateAddress = (address) => {
+  return address ? `${address.slice(0, 6)}...${address.slice(-4)}` : ''
+}
+
+export default function PeerCard({ peer }) {
+  const initials = getInitials(peer.name, peer.address)
+  const displayName = peer.name || truncateAddress(peer.address)
+
+  const handleClick = () => {
+    // Navigate to peer detail or initiate chat
+    // Would implement navigation here in a full app
+    console.log('Click peer:', peer.address)
+  }
+
+  return (
+    <Card onClick={handleClick}>
+      <Avatar title={peer.address}>{initials}</Avatar>
+
+      <div>
+        <Name>{displayName}</Name>
+        <Address title={peer.address}>{truncateAddress(peer.address)}</Address>
+      </div>
+
+      {peer.bio && <Bio>{peer.bio}</Bio>}
+
+      {peer.expertise && peer.expertise.length > 0 && (
+        <Expertise>
+          {peer.expertise.map((skill) => (
+            <Tag key={skill}>{skill}</Tag>
+          ))}
+        </Expertise>
+      )}
+
+      {peer.hourlyRate && <Rate>${peer.hourlyRate}/hr</Rate>}
+
+      {(peer.social?.twitter || peer.social?.github || peer.social?.website) && (
+        <Social>
+          {peer.social?.github && (
+            <SocialLink href={`https://github.com/${peer.social.github}`} target="_blank" rel="noopener noreferrer">
+              GitHub
+            </SocialLink>
+          )}
+          {peer.social?.twitter && (
+            <SocialLink href={`https://twitter.com/${peer.social.twitter}`} target="_blank" rel="noopener noreferrer">
+              Twitter
+            </SocialLink>
+          )}
+          {peer.social?.website && (
+            <SocialLink href={peer.social.website} target="_blank" rel="noopener noreferrer">
+              Website
+            </SocialLink>
+          )}
+        </Social>
+      )}
+    </Card>
+  )
 }
