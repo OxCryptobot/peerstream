@@ -1,6 +1,10 @@
 {
   "name": "@sablier-app/monorepo",
   "version": "1.0.0",
+  "packageManager": "npm@11.16.0",
+  "engines": {
+    "node": ">=18 <25"
+  },
   "keywords": [
     "ethereum",
     "react",
@@ -10,10 +14,15 @@
   ],
   "private": true,
   "scripts": {
-    "react-app:build": "yarn workspace @sablier-app/react-app build",
-    "react-app:eject": "yarn workspace @sablier-app/react-app eject",
-    "react-app:start": "yarn workspace @sablier-app/react-app start",
-    "react-app:test": "yarn workspace @sablier-app/react-app test"
+    "react-app:build": "npm run build --workspace=@sablier-app/react-app",
+    "react-app:eject": "npm run eject --workspace=@sablier-app/react-app",
+    "react-app:start": "npm run start --workspace=@sablier-app/react-app",
+    "react-app:test": "npm run test --workspace=@sablier-app/react-app",
+    "react-app:test:ci": "npm run test:ci --workspace=@sablier-app/react-app",
+    "react-app:lint": "npm exec --workspace=@sablier-app/react-app -- eslint \"src/**/*.{js,jsx}\"",
+    "test": "npm run react-app:test:ci",
+    "build": "npm run react-app:build",
+    "lint": "npm run react-app:lint"
   },
   "workspaces": {
     "packages": [

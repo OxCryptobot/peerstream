@@ -73,6 +73,8 @@
     "eject": "react-scripts eject",
     "start": "react-scripts start",
     "test": "react-scripts test",
+    "test:ci": "CI=true react-scripts test --watchAll=false --runInBand",
+    "lint": "node ../../node_modules/eslint/bin/eslint.js \"src/**/*.{js,jsx}\"",
     "server": "cd ../server && npm run server",
     "client": "npm run start",
     "dev": "concurrently \"npm run server\" \"npm run client\""
