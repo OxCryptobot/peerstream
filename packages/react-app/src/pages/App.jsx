@@ -74,7 +74,7 @@ export default function App() {
                     <Routes>
                       <Route path="/" element={<Home />} />
                       <Route path="/home" element={<Home />} />
-                      <Route path="/discover" element={context.active ? <Discover /> : <Navigate to="/" replace />} />
+                      <Route path="/discover" element={<Discover />} />
                       <Route path="/meeting" element={<Meeting />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
