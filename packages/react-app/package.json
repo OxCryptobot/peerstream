@@ -26,6 +26,7 @@
     "dotenv": "^8.2.0",
     "escape-string-regexp": "^3.0.0",
     "ethers": "6.10.0",
+    "events": "^3.3.0",
     "graphql": "16.8.0",
     "lodash": "^4.17.21",
     "polished": "^4.2.2",
@@ -53,13 +54,15 @@
     "@vitejs/plugin-react": "4.2.1",
     "@web3-react/core": "6.1.9",
     "@web3-react/injected-connector": "6.0.7",
-    "@web3-react/network-connector": "6.2.5",
+    "@web3-react/network-connector": "^6.0.9",
     "bignumber.js": "^9.1.2",
     "eslint": "8.54.0",
     "eslint-plugin-react": "7.33.2",
     "eslint-plugin-react-hooks": "4.6.0",
+    "terser": "^5.48.0",
     "typescript": "5.3.3",
-    "vite": "5.0.10"
+    "vite": "5.0.10",
+    "vite-plugin-svgr": "^5.2.0"
   },
   "scripts": {
     "dev": "vite",
