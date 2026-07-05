@@ -1,92 +1,79 @@
-// import 'babel-polyfill'
 import React from 'react'
-import ReactDOM from 'react-dom'
-import * as serviceWorker from './serviceWorker'
+import ReactDOM from 'react-dom/client'
 import { ethers } from 'ethers'
 import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
-import ApolloClient from "apollo-boost"
-import { ApolloProvider } from "@apollo/react-hooks"
+import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client'
 import { NetworkContextName } from './constants'
-import ThemeProvider, { GlobalStyle } from './theme'
+import ThemeProvider from './theme'
 import { types, transitions, positions, Provider as AlertProvider } from 'react-alert'
 import AlertTemplate from 'react-alert-template-basic'
 import App from './pages/App'
-import "./index.css";
+import './index.css'
 
 import ApplicationContextProvider, { Updater as ApplicationContextUpdater } from './contexts/Application'
 import TokensContextProvider, { Updater as TokensContextUpdater } from './contexts/Tokens'
-// import LocalStorageContextProvider, { Updater as LocalStorageContextUpdater } from './contexts/LocalStorage'
 
 require('./App.css')
 
 const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
 
 function getLibrary(provider) {
-  const library = new ethers.providers.Web3Provider(provider)
+  const library = new ethers.BrowserProvider(provider)
   library.pollingInterval = 10000
   return library
 }
 
-// optional cofiguration
+// Alert configuration
 const alertOptions = {
-  // you can also just use 'bottom center'
   position: positions.TOP_CENTER,
   timeout: 5000,
   offset: '30px',
   type: types.INFO,
-  // you can also just use 'scale'
   transition: transitions.SCALE
 }
 
-
-// This is the official Sablier subgraph. You can replace it with your own, if you need to.
-// See all subgraphs: https://thegraph.com/explorer/
+// Apollo Client v3 initialization
 const client = new ApolloClient({
-  uri: "https://api.thegraph.com/subgraphs/name/sablierhq/sablier",
-});
-
+  uri: 'https://api.thegraph.com/subgraphs/name/sablierhq/sablier',
+  cache: new InMemoryCache()
+})
 
 function ContextProviders({ children }) {
   return (
-    // <LocalStorageContextProvider>
-      <ApplicationContextProvider>
-        <TokensContextProvider>
-            {children}
-        </TokensContextProvider>
-      </ApplicationContextProvider>
-    /* </LocalStorageContextProvider> */
+    <ApplicationContextProvider>
+      <TokensContextProvider>
+        {children}
+      </TokensContextProvider>
+    </ApplicationContextProvider>
   )
 }
 
 function Updaters() {
   return (
     <>
-      {/* <LocalStorageContextUpdater /> */}
       <ApplicationContextUpdater />
     </>
   )
 }
 
-ReactDOM.render(
-      <Web3ReactProvider
-        getLibrary={getLibrary}>
-        <Web3ProviderNetwork getLibrary={getLibrary}>
-          <ContextProviders>
-            <Updaters />
-            <ThemeProvider>
-              {/* <GlobalStyle /> */}
-              <ApolloProvider client={client}>
-                <AlertProvider template={AlertTemplate} {...alertOptions}>
-                  <App />
-                </AlertProvider>
-              </ApolloProvider>
-          </ThemeProvider>
-          </ContextProviders>
-        </Web3ProviderNetwork>
-      </Web3ReactProvider>
-  , document.getElementById('root'))
+// React 18: Use createRoot instead of render
+const root = ReactDOM.createRoot(document.getElementById('root'))
 
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister()
+root.render(
+  <React.StrictMode>
+    <Web3ReactProvider getLibrary={getLibrary}>
+      <Web3ProviderNetwork getLibrary={getLibrary}>
+        <ContextProviders>
+          <Updaters />
+          <ThemeProvider>
+            <ApolloProvider client={client}>
+              <AlertProvider template={AlertTemplate} {...alertOptions}>
+                <App />
+              </AlertProvider>
+            </ApolloProvider>
+          </ThemeProvider>
+        </ContextProviders>
+      </Web3ProviderNetwork>
+    </Web3ReactProvider>
+  </React.StrictMode>
+)

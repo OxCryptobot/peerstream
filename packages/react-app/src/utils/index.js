@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { addresses, abis } from "@sablier-app/contracts";
+import { addresses, abis } from "@sablier-app/contracts"
 import UncheckedJsonRpcSigner from './signer'
 
 export const ERROR_CODES = ['TOKEN_NAME', 'TOKEN_SYMBOL', 'TOKEN_DECIMALS'].reduce(
@@ -20,7 +20,7 @@ export function safeAccess(object, path) {
 
 export function isAddress(value) {
   try {
-    return ethers.utils.getAddress(value)
+    return ethers.getAddress(value)
   } catch {
     return false
   }
@@ -37,14 +37,14 @@ export function getProviderOrSigner(library, account) {
 export function getContract(chainId, library, contractName, account) {
   switch (contractName) {
     case "Sablier":
-      return new ethers.Contract(addresses[chainId].sablier, abis.sablier, getProviderOrSigner(library, account));
+      return new ethers.Contract(addresses[chainId].sablier, abis.sablier, getProviderOrSigner(library, account))
     default:
       return null
   }
 }
 
 export function getERC20Contract(address, library, account) {
-  return new ethers.Contract(address, abis.erc20, getProviderOrSigner(library, account));
+  return new ethers.Contract(address, abis.erc20, getProviderOrSigner(library, account))
 }
 
 export async function getTokenName(tokenAddress, library) {
@@ -52,20 +52,22 @@ export async function getTokenName(tokenAddress, library) {
     throw Error(`Invalid 'tokenAddress' parameter '${tokenAddress}'.`)
   }
 
-  return getContract(tokenAddress, abis.erc20, library)
-    .name()
-    .catch(() =>
-      getContract(tokenAddress, abis.erc20_bytes32, library)
-        .name()
-        .then(bytes32 => ethers.utils.parseBytes32String(bytes32))
-    )
-    .catch(error => {
-      error.code = ERROR_CODES.TOKEN_SYMBOL
+  try {
+    const contract = new ethers.Contract(tokenAddress, abis.erc20, library)
+    return await contract.name()
+  } catch {
+    try {
+      const contractBytes32 = new ethers.Contract(tokenAddress, abis.erc20_bytes32, library)
+      const bytes32 = await contractBytes32.name()
+      return ethers.toUtf8String(bytes32)
+    } catch (error) {
+      error.code = ERROR_CODES.TOKEN_NAME
       throw error
-    })
+    }
+  }
 }
 
-export async function getStreamEventsBetween(chainId, library, sender, recipient, account) { //chainId, library, contractName, account
+export async function getStreamEventsBetween(chainId, library, sender, recipient, account) {
   const sablier = getContract(chainId, library, "Sablier", account)
   const filter = sablier.filters.CreateStream(null, sender, recipient)
   filter.fromBlock = 0
@@ -86,16 +88,19 @@ export async function getTokenSymbol(tokenAddress, library) {
     throw Error(`Invalid 'tokenAddress' parameter '${tokenAddress}'.`)
   }
 
-  return getContract(tokenAddress, abis.erc20, library)
-    .symbol()
-    .catch(() => {
-      const contractBytes32 = getContract(tokenAddress, abis.erc20_bytes32, library)
-      return contractBytes32.symbol().then(bytes32 => ethers.utils.parseBytes32String(bytes32))
-    })
-    .catch(error => {
+  try {
+    const contract = new ethers.Contract(tokenAddress, abis.erc20, library)
+    return await contract.symbol()
+  } catch {
+    try {
+      const contractBytes32 = new ethers.Contract(tokenAddress, abis.erc20_bytes32, library)
+      const bytes32 = await contractBytes32.symbol()
+      return ethers.toUtf8String(bytes32)
+    } catch (error) {
       error.code = ERROR_CODES.TOKEN_SYMBOL
       throw error
-    })
+    }
+  }
 }
 
 // get token decimals
@@ -124,8 +129,8 @@ export function shortenTransactionHash(hash, digits = 4) {
 }
 
 export function calculateGasMargin(value, margin) {
-  const offset = value.mul(margin).div(ethers.utils.bigNumberify(10000))
-  return value.add(offset)
+  const offset = (BigInt(value) * BigInt(margin)) / BigInt(10000)
+  return BigInt(value) + offset
 }
 
 export function formatEthBalance(balance) {
@@ -136,7 +141,7 @@ export function formatTokenBalance(balance, decimal) {
   return !!(balance && Number.isInteger(decimal)) ? amountFormatter(balance, decimal, Math.min(4, decimal)) : 0
 }
 
-// amount must be a BigNumber, {base,display}Decimals must be Numbers
+// amount must be a BigNumber or BigInt, {base,display}Decimals must be Numbers
 export function amountFormatter(amount, baseDecimals = 18, displayDecimals = 3, useLessThan = true) {
   if (baseDecimals > 18 || displayDecimals > 18 || displayDecimals > baseDecimals) {
     throw Error(`Invalid combination of baseDecimals '${baseDecimals}' and displayDecimals '${displayDecimals}.`)
@@ -146,28 +151,30 @@ export function amountFormatter(amount, baseDecimals = 18, displayDecimals = 3, 
   if (!amount) {
     return undefined
   }
+
+  // Convert to BigInt if needed
+  const amountBigInt = typeof amount === 'bigint' ? amount : BigInt(amount.toString ? amount.toString() : amount)
+  
   // if amount is 0, return
-  else if (amount.isZero()) {
+  if (amountBigInt === 0n) {
     return '0'
   }
   // amount > 0
   else {
     // amount of 'wei' in 1 'ether'
-    const baseAmount = ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(baseDecimals))
+    const baseAmount = 10n ** BigInt(baseDecimals)
 
-    const minimumDisplayAmount = baseAmount.div(
-      ethers.utils.bigNumberify(10).pow(ethers.utils.bigNumberify(displayDecimals))
-    )
+    const minimumDisplayAmount = baseAmount / (10n ** BigInt(displayDecimals))
 
     // if balance is less than the minimum display amount
-    if (amount.lt(minimumDisplayAmount)) {
+    if (amountBigInt < minimumDisplayAmount) {
       return useLessThan
-        ? `<${ethers.utils.formatUnits(minimumDisplayAmount, baseDecimals)}`
-        : `${ethers.utils.formatUnits(amount, baseDecimals)}`
+        ? `<${ethers.formatUnits(minimumDisplayAmount, baseDecimals)}`
+        : `${ethers.formatUnits(amountBigInt, baseDecimals)}`
     }
     // if the balance is greater than the minimum display amount
     else {
-      const stringAmount = ethers.utils.formatUnits(amount, baseDecimals)
+      const stringAmount = ethers.formatUnits(amountBigInt, baseDecimals)
 
       // if there isn't a decimal portion
       if (!stringAmount.match(/\./)) {
@@ -176,10 +183,9 @@ export function amountFormatter(amount, baseDecimals = 18, displayDecimals = 3, 
       // if there is a decimal portion
       else {
         const [wholeComponent, decimalComponent] = stringAmount.split('.')
-        const roundUpAmount = minimumDisplayAmount.div(ethers.constants.Two)
-        const roundedDecimalComponent = ethers.utils
-          .bigNumberify(decimalComponent.padEnd(baseDecimals, '0'))
-          .add(roundUpAmount)
+        const roundUpAmount = minimumDisplayAmount / 2n
+        const paddedDecimal = decimalComponent.padEnd(baseDecimals, '0')
+        const roundedDecimalComponent = (BigInt(paddedDecimal) + roundUpAmount)
           .toString()
           .padStart(baseDecimals, '0')
           .substring(0, displayDecimals)

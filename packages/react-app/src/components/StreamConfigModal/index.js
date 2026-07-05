@@ -13,7 +13,7 @@ import { useAllTokenDetails } from '../../contexts/Tokens'
 import Modal from '../Modal'
 import { ReactComponent as Close } from '../../assets/img/x.svg'
 
-const GAS_MARGIN = ethers.utils.bigNumberify(1000)
+const GAS_MARGIN = 1000n
 BigNumber.config({ EXPONENTIAL_AT: 30 })
 
 const InputRow = styled.div`
