@@ -1,21 +1,26 @@
 import React from 'react'
 import styled, { css } from 'styled-components'
-import { animated, useTransition } from 'react-spring'
 import { DialogOverlay, DialogContent } from '@reach/dialog'
 import { transparentize } from 'polished'
 import '@reach/dialog/styles.css'
 
-const AnimatedDialogOverlay = animated(DialogOverlay)
-const WrappedDialogOverlay = ({ suppressClassNameWarning, ...rest }) => <AnimatedDialogOverlay {...rest} />
-const StyledDialogOverlay = styled(WrappedDialogOverlay).attrs({
-  suppressClassNameWarning: true
-})`
+const StyledDialogOverlay = styled(DialogOverlay)`
   &[data-reach-dialog-overlay] {
     z-index: 2;
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: ${({ theme }) => theme.modalBackground};
+    animation: fadeIn 0.15s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
   }
 `
 
@@ -56,22 +61,16 @@ const HiddenCloseButton = styled.button`
 `
 
 export default function Modal({ isOpen, onDismiss, minHeight = false, initialFocusRef, children }) {
-  const transitions = useTransition(isOpen, null, {
-    config: { duration: 150 },
-    from: { opacity: 0 },
-    enter: { opacity: 1 },
-    leave: { opacity: 0 }
-  })
+  if (!isOpen) {
+    return null
+  }
 
-  return transitions.map(
-    ({ item, key, props }) =>
-      item && (
-        <StyledDialogOverlay key={key} style={props} onDismiss={onDismiss} initialFocusRef={initialFocusRef}>
-          <StyledDialogContent aria-label="popup-info" hidden={true} minHeight={minHeight}>
-            <HiddenCloseButton onClick={onDismiss} />
-            {children}
-          </StyledDialogContent>
-        </StyledDialogOverlay>
-      )
+  return (
+    <StyledDialogOverlay onDismiss={onDismiss} initialFocusRef={initialFocusRef}>
+      <StyledDialogContent aria-label="popup-info" hidden={false} minHeight={minHeight}>
+        <HiddenCloseButton onClick={onDismiss} />
+        {children}
+      </StyledDialogContent>
+    </StyledDialogOverlay>
   )
 }
