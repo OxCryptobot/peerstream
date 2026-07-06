@@ -1,41 +1,35 @@
-# PayTray Backend Production Dockerfile - Monorepo Compatible
+# PayTray Backend - Production Dockerfile for Monorepo
+# This file is at packages/backend/Dockerfile
+# Docker context is the root directory when built from Railway
 FROM node:18-alpine
 
-# Install dumb-init to properly handle signals
-RUN apk add --no-cache dumb-init
+# Install utilities
+RUN apk add --no-cache curl tini
 
+# Set working directory
 WORKDIR /app
 
-# Copy root package files for monorepo
+# Step 1: Copy root package files (monorepo configuration)
 COPY package*.json ./
 
-# Copy workspace package files
-COPY packages/backend/package*.json ./packages/backend/
+# Step 2: Install dependencies (only production)
+RUN npm install --omit=dev --legacy-peer-deps 2>&1 && npm cache clean --force
 
-# Install root dependencies and backend workspace
-RUN npm ci --omit=dev
-
-# Copy entire backend code
+# Step 3: Copy backend source
 COPY packages/backend ./packages/backend
 
-# Copy contracts package (may be needed by backend)
-COPY packages/contracts ./packages/contracts
-
-# Build step (if needed)
-RUN cd packages/backend && npm run build 2>/dev/null || true
-
-# Set working directory to backend
+# Step 4: Set backend as working directory  
 WORKDIR /app/packages/backend
 
-# Expose port
+# Expose backend port
 EXPOSE 3001
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD node -e "import('http').then(h => h.get('http://localhost:3001/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})).catch(e => {throw e})" || exit 1
+# Health check using curl (more reliable)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
+  CMD curl -sf http://localhost:3001/api/health || exit 1
 
-# Use dumb-init to run node
-ENTRYPOINT ["dumb-init", "--"]
+# Use tini for proper signal handling
+ENTRYPOINT ["/sbin/tini", "--"]
 
-# Start server
+# Start the application
 CMD ["npm", "start"]

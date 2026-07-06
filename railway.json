@@ -1,32 +1,23 @@
 {
   "$schema": "https://railway.app/schemas/v1",
-  "projectName": "paytray",
-  "services": {
-    "backend": {
+  "projectName": "paytray-backend",
+  "services": [
+    {
+      "name": "backend",
       "builder": "dockerfile",
-      "buildCommand": "npm install --workspace=@paytray/backend && npm run build --workspace=@paytray/backend || true",
-      "startCommand": "cd packages/backend && npm start",
-      "rootDirectory": "packages/backend",
-      "dockerfilePath": "Dockerfile",
+      "dockerfilePath": "packages/backend/Dockerfile",
+      "rootDirectory": ".",
+      "buildCommand": "",
+      "startCommand": "npm start",
       "port": 3001,
-      "healthcheckPath": "/api/health",
-      "watchPatterns": [
-        "packages/backend/**"
-      ],
+      "volumes": [],
       "variables": {
-        "NODE_ENV": "production"
+        "NODE_ENV": "production",
+        "REDIS_ENABLED": "false",
+        "CERAMIC_ENABLED": "false",
+        "LIVEKIT_ENABLED": "false",
+        "SABLIER_ENABLED": "false"
       }
-    },
-    "postgres": {
-      "image": "postgres:15-alpine",
-      "environment": {
-        "POSTGRES_DB": "paytray",
-        "POSTGRES_USER": "paytray",
-        "POSTGRES_PASSWORD": "paytray_production"
-      }
-    },
-    "redis": {
-      "image": "redis:7-alpine"
     }
-  }
+  ]
 }
