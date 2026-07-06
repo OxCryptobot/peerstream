@@ -865,23 +865,47 @@ let server = null
 
 export async function startServer() {
   try {
-    // Initialize database
-    await initializeDatabase()
-    logger.info('✓ Database initialized')
+    // Initialize database (optional - handle gracefully)
+    try {
+      await initializeDatabase()
+      logger.info('✓ Database initialized')
+    } catch (dbError) {
+      logger.warn('⚠️  Database initialization failed - server will run without database:', dbError.message)
+    }
 
-    // Initialize Ceramic service (Phase 2)
-    const ceramic = initializeCeramic()
-    await ceramic.initialize()
-    logger.info('✓ Ceramic service initialized')
+    // Initialize Ceramic service (Phase 2) - optional
+    try {
+      if (config.ceramic.enabled) {
+        const ceramic = initializeCeramic()
+        await ceramic.initialize()
+        logger.info('✓ Ceramic service initialized')
+      } else {
+        logger.info('⊘ Ceramic service disabled')
+      }
+    } catch (ceramicError) {
+      logger.warn('⚠️  Ceramic service initialization failed:', ceramicError.message)
+    }
 
-    // Initialize Sablier service (Phase 3)
-    const sablier = initializeSablier()
-    await sablier.initialize()
-    logger.info('✓ Sablier service initialized')
+    // Initialize Sablier service (Phase 3) - optional
+    try {
+      if (config.sablier.enabled) {
+        const sablier = initializeSablier()
+        await sablier.initialize()
+        logger.info('✓ Sablier service initialized')
+      } else {
+        logger.info('⊘ Sablier service disabled')
+      }
+    } catch (sablierError) {
+      logger.warn('⚠️  Sablier service initialization failed:', sablierError.message)
+    }
 
-    // Initialize Message Queue (Phase 4 - Async Jobs)
-    const queueManager = getQueueManager(process.env.REDIS_URL)
-    logger.info('✓ Message queue initialized')
+    // Initialize Message Queue (Phase 4 - Async Jobs) - optional
+    try {
+      const queueManager = getQueueManager(process.env.REDIS_URL)
+      logger.info('✓ Message queue initialized')
+    } catch (queueError) {
+      logger.warn('⚠️  Message queue initialization failed - async jobs disabled:', queueError.message)
+    }
 
     // Start server
     const server = app.listen(config.server.port, config.server.host, () => {
