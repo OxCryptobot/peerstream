@@ -1,15 +1,14 @@
-# DEPRECATED: Use root Dockerfile instead
-# This file is kept for reference but not used by Railway
-# Railway uses: /Dockerfile (at root level)
-
+# Production Dockerfile - Simplified from root
 FROM node:18-alpine
 
 RUN apk add --no-cache curl tini
 
 WORKDIR /app
 
+# Copy everything
 COPY . .
 
+# Install at root (no lock file needed)
 RUN npm install --omit=dev --legacy-peer-deps --force 2>&1 || true
 
 WORKDIR /app/packages/backend

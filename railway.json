@@ -5,12 +5,9 @@
     {
       "name": "backend",
       "builder": "dockerfile",
-      "dockerfilePath": "packages/backend/Dockerfile",
+      "dockerfilePath": "Dockerfile",
       "rootDirectory": ".",
-      "buildCommand": "",
-      "startCommand": "npm start",
       "port": 3001,
-      "volumes": [],
       "variables": {
         "NODE_ENV": "production",
         "REDIS_ENABLED": "false",
