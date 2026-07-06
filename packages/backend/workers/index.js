@@ -89,40 +89,6 @@ async function initializeWorker() {
     process.exit(1)
   }
 }
-      logger.info('SIGINT received, shutting down gracefully...')
-      clearInterval(statsInterval)
-      await queueManager.shutdown()
-      process.exit(0)
-    })
-
-    logger.info(`
-╔════════════════════════════════════════════════════════════════╗
-║          PayTray Worker Process - Async Job Handler            ║
-║          Ready to process background jobs                       ║
-╚════════════════════════════════════════════════════════════════╝
-
-✅ Infrastructure:
-  ✓ Database connected
-  ✓ Redis connected
-  ✓ Job handlers registered
-
-📋 Available Queues:
-  • sendProfileUpdateEmail    - Send profile update notifications
-  • sendPaymentReceivedEmail  - Send payment stream notifications
-  • recordUserActivity        - Track user analytics
-  • cleanupOldCalls           - Remove old video call records
-  • generateMonthlyReport     - Generate user statistics
-
-⏱️  Checking queue status every 30 seconds
-🛑 Graceful shutdown: SIGTERM or SIGINT
-
-Starting job processing...
-    `)
-  } catch (error) {
-    logger.error('Worker initialization failed', error)
-    process.exit(1)
-  }
-}
 
 // Start worker
 initializeWorker().catch((error) => {
