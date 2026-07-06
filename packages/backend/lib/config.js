@@ -134,16 +134,28 @@ export const config = {
 export function validateConfig() {
   const errors = []
 
-  // Required in all environments
+  // JWT_SECRET: required, but use default for non-production
   if (!config.jwt.secret) {
-    errors.push('JWT_SECRET is required')
+    if (config.isProd) {
+      errors.push('JWT_SECRET is required in production')
+    } else {
+      // Use default for development/staging
+      console.warn('⚠️  JWT_SECRET not set, using default for development/staging')
+      process.env.JWT_SECRET = 'dev-secret-key-minimum-32-characters-long-must-be-used'
+      config.jwt.secret = process.env.JWT_SECRET
+    }
   }
 
-  // Required in production
+  // Required in production ONLY
   if (config.isProd) {
     if (!config.database.url) errors.push('DATABASE_URL is required in production')
     if (!config.livekit.apiKey) errors.push('LIVEKIT_API_KEY is required in production')
     if (!config.livekit.apiSecret) errors.push('LIVEKIT_API_SECRET is required in production')
+  }
+
+  // Staging: database warning if not set
+  if (config.isStaging && !config.database.url) {
+    console.warn('⚠️  DATABASE_URL not set in staging - database operations will fail')
   }
 
   if (errors.length > 0) {

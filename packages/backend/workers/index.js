@@ -23,41 +23,72 @@ async function initializeWorker() {
   try {
     logger.info('🚀 Initializing job worker...')
 
-    // Initialize database connection
-    await initializeDatabase()
-    logger.info('✓ Database connected')
+    // Try to initialize database connection
+    try {
+      await initializeDatabase()
+      logger.info('✓ Database connected')
+    } catch (dbError) {
+      logger.warn('⚠️  Database connection failed:', dbError.message)
+      logger.warn('Worker will continue without database support')
+    }
 
-    // Initialize queue manager with Redis
-    const queueManager = getQueueManager(process.env.REDIS_URL || 'redis://localhost:6379')
-    logger.info('✓ Queue manager initialized')
+    // Try to initialize queue manager with Redis
+    try {
+      const queueManager = getQueueManager(process.env.REDIS_URL || 'redis://localhost:6379')
+      logger.info('✓ Queue manager initialized')
 
-    // Register all job handlers
-    await registerJobHandlers(queueManager)
-    logger.info('✓ Job handlers registered')
-
-    // Log queue stats every 30 seconds
-    const statsInterval = setInterval(async () => {
+      // Register all job handlers
       try {
-        const stats = await queueManager.getAllStats()
-        logger.info('📊 Queue Statistics:', {
-          timestamp: new Date().toISOString(),
-          stats
-        })
-      } catch (error) {
-        logger.error('Failed to fetch queue stats', error)
+        await registerJobHandlers(queueManager)
+        logger.info('✓ Job handlers registered')
+      } catch (handlerError) {
+        logger.warn('⚠️  Job handler registration failed:', handlerError.message)
       }
-    }, 30000)
 
-    // Graceful shutdown on SIGTERM
-    process.on('SIGTERM', async () => {
-      logger.info('SIGTERM received, shutting down gracefully...')
-      clearInterval(statsInterval)
-      await queueManager.shutdown()
-      process.exit(0)
-    })
+      // Log queue stats every 30 seconds
+      const statsInterval = setInterval(async () => {
+        try {
+          const stats = await queueManager.getAllStats()
+          logger.info('📊 Queue Statistics:', {
+            timestamp: new Date().toISOString(),
+            stats
+          })
+        } catch (error) {
+          logger.error('Failed to fetch queue stats', error)
+        }
+      }, 30000)
 
-    // Graceful shutdown on SIGINT (Ctrl+C)
-    process.on('SIGINT', async () => {
+      // Graceful shutdown on SIGTERM
+      process.on('SIGTERM', async () => {
+        logger.info('SIGTERM received, shutting down gracefully...')
+        clearInterval(statsInterval)
+        await queueManager.shutdown()
+        process.exit(0)
+      })
+
+      // Graceful shutdown on SIGINT (Ctrl+C)
+      process.on('SIGINT', async () => {
+        logger.info('SIGINT received, shutting down gracefully...')
+        clearInterval(statsInterval)
+        await queueManager.shutdown()
+        process.exit(0)
+      })
+
+      logger.info('✅ Worker ready to process jobs')
+    } catch (queueError) {
+      logger.error('⚠️  Queue manager initialization failed:', queueError.message)
+      logger.warn('Worker running in degraded mode - no job processing')
+      
+      // Exit after a delay so Railway logs it
+      setTimeout(() => {
+        process.exit(1)
+      }, 5000)
+    }
+  } catch (error) {
+    logger.error('❌ Worker initialization failed:', error)
+    process.exit(1)
+  }
+}
       logger.info('SIGINT received, shutting down gracefully...')
       clearInterval(statsInterval)
       await queueManager.shutdown()

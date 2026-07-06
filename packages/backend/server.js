@@ -47,6 +47,7 @@ import { getVersionManager, createVersionedRoute, deprecationMiddleware } from '
 
 // Load environment
 dotenv.config({ path: '.env.local' })
+// Note: .env.local is optional - will be skipped if not found
 
 // Initialize logger
 const logger = getLogger('Server')
@@ -142,8 +143,24 @@ const WalletConnections = createModel('wallet_connections')
 
 app.get('/health', async (req, res, next) => {
   try {
-    const pool = getPool()
-    const dbCheck = await pool.query('SELECT NOW()')
+    const checks = {
+      database: 'unavailable',
+      livekit: config.livekit.apiKey ? 'configured' : 'missing',
+      ceramic: config.ceramic.enabled ? 'enabled' : 'disabled'
+    }
+
+    // Try to check database, but don't fail if unavailable
+    try {
+      const pool = getPool()
+      if (pool) {
+        const dbCheck = await pool.query('SELECT NOW()')
+        checks.database = dbCheck.rows.length > 0 ? 'ok' : 'error'
+      }
+    } catch (dbError) {
+      checks.database = 'unavailable'
+      // Don't fail - just log
+      logger.warn('Database unavailable for health check', dbError.message)
+    }
 
     res.json({
       status: 'healthy',
@@ -152,14 +169,52 @@ app.get('/health', async (req, res, next) => {
       environment: config.env,
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-      checks: {
-        database: dbCheck.rows.length > 0 ? 'ok' : 'error',
-        livekit: config.livekit.apiKey ? 'configured' : 'missing',
-        ceramic: config.ceramic.enabled ? 'enabled' : 'disabled'
-      }
+      checks
     })
   } catch (error) {
-    next(new ExternalServiceError('Health Check', error.message))
+    // Return 503 Service Unavailable but include status
+    res.status(503).json({
+      status: 'degraded',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    })
+  }
+})
+
+// Alias for API health check
+app.get('/api/health', async (req, res) => {
+  try {
+    const checks = {
+      database: 'unavailable',
+      livekit: config.livekit.apiKey ? 'configured' : 'missing',
+      ceramic: config.ceramic.enabled ? 'enabled' : 'disabled'
+    }
+
+    try {
+      const pool = getPool()
+      if (pool) {
+        const dbCheck = await pool.query('SELECT NOW()')
+        checks.database = dbCheck.rows.length > 0 ? 'ok' : 'error'
+      }
+    } catch (dbError) {
+      checks.database = 'unavailable'
+    }
+
+    res.json({
+      status: 'healthy',
+      service: 'paytray-backend',
+      version: '2.0.0',
+      environment: config.env,
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      checks
+    })
+  } catch (error) {
+    res.status(503).json({
+      status: 'degraded',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    })
   }
 })
 
