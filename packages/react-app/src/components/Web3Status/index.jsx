@@ -1,137 +1,236 @@
-  
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-import { useWeb3React, UnsupportedChainIdError } from '@web3-react/core'
-import { darken } from 'polished'
-import { Activity } from 'react-feather'
-import { useENSName } from '../../hooks'
+import { useMultiWallet, useWalletInfo } from '../../contexts/MultiWallet'
+import WalletSelector from '../WalletSelector'
 
-import { injected } from '../../connectors'
-import { NetworkContextName } from '../../constants'
-import { useWalletModalToggle } from '../../contexts/Application'
-
-import WalletModal from '../WalletModal'
-
-const Web3StatusGeneric = styled.button`
-  ${({ theme }) => theme.flexRowNoWrap}
-  width: 100%;
-  font-size: 0.3rem;
+const Web3StatusDiv = styled.div`
+  display: flex;
   align-items: center;
-  padding: 0.5rem;
-  border-radius: 2rem;
-  box-sizing: border-box;
+  gap: 12px;
+  position: relative;
+`
+
+const StatusButton = styled.button`
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
-  user-select: none;
-  :focus {
-    outline: none;
-  }
-`
-const Web3StatusError = styled(Web3StatusGeneric)`
-  background-color: ${({ theme }) => theme.primaryGreen};
-  border: 1px solid ${({ theme }) => theme.primaryGreen};
-  color: ${({ theme }) => theme.white};
-  font-weight: 500;
-  :hover,
-  :focus {
-    background-color: ${({ theme }) => darken(0.1, theme.secondaryGreen)};
-  }
-`
-
-const Web3StatusConnect = styled(Web3StatusGeneric)`
-  background-color: ${({ theme }) => theme.primaryGreen};
-  border: 1px solid ${({ theme }) => theme.primaryGreen};
-  color: ${({ theme }) => theme.white};
-  font-weight: 500;
-  :hover,
-  :focus {
-    background-color: ${({ theme }) => darken(0.1, theme.secondaryGreen)};
-  }
-`
-
-const Web3StatusConnected = styled(Web3StatusGeneric)`
-  background-color: ${({ theme }) => theme.primaryGreen};
-  border: 1px solid ${({ theme }) => theme.primaryGreen};
-  color: ${({ theme }) => theme.white};
-  font-weight: 400;
-  :hover {
-    background-color: ${({ theme }) => darken(0.1, theme.secondaryGreen)};
-  }
-  :focus {
-    border: 1px solid
-    ${({ theme }) => theme.primaryGreen};
-  }
-`
-
-const Text = styled.p`
-  flex: 1 1 auto;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  transition: all 0.3s ease;
+  font-family: 'Inter', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   white-space: nowrap;
-  margin: 0 0.5rem 0 0.25rem;
-  font-size: 0.83rem;
+
+  ${(props) =>
+    props.isConnected
+      ? `
+    background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+    color: white;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(124, 58, 237, 0.3);
+    }
+  `
+      : `
+    background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+    color: white;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(30, 64, 175, 0.3);
+    }
+  `};
 `
 
-const Identicon = styled.div`
-  height: 1rem;
-  width: 1rem;
-  border-radius: 1.125rem;
-  background-color: ${({ theme }) => theme.tertiaryGreen};
+const WalletIcon = styled.span`
+  font-size: 16px;
 `
 
-const NetworkIcon = styled(Activity)`
-  margin-left: 0.25rem;
-  margin-right: 0.5rem;
-  width: 16px;
-  height: 16px;
+const ChainBadge = styled.span`
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
 `
 
+const Dropdown = styled.div`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  min-width: 250px;
+  overflow: hidden;
+  z-index: 50;
+  margin-top: 8px;
+  border: 1px solid #e5e7eb;
+`
+
+const DropdownItem = styled.div`
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 13px;
+  color: #1f2937;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  strong {
+    color: #111827;
+    font-weight: 600;
+  }
+`
+
+const DropdownButton = styled.button`
+  width: 100%;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+`
+
+const LoadingSpinner = styled.span`
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+`
+
+/**
+ * Web3Status Component
+ * Display wallet connection status and provide connection options
+ */
 export default function Web3Status() {
-  const { active, account, connector, error } = useWeb3React()
-  const contextNetwork = useWeb3React(NetworkContextName)
+  const {
+    account,
+    chainId,
+    isConnected,
+    isConnecting,
+    disconnectWallet,
+    walletType
+  } = useMultiWallet()
 
-  const ENSName = useENSName(account)
+  const walletInfo = useWalletInfo()
+  const [isOpen, setIsOpen] = useState(false)
+  const [showDropdown, setShowDropdown] = useState(false)
 
-  const toggleWalletModal = useWalletModalToggle()
-
-  // handle the logo we want to show with the account
-  function getStatusIcon() {
-    if (connector === injected) {
-      return <Identicon />
-    }
+  const formatAddress = (addr) => {
+    if (!addr) return ''
+    return `${addr.slice(0, 6)}...${addr.slice(-4)}`
   }
 
-  function getWeb3Status() {
-    if (account) {
-      return (
-        <Web3StatusConnected onClick={toggleWalletModal}>
-          <Text>{ENSName || account}</Text>
-          {getStatusIcon()}
-        </Web3StatusConnected>
-      )
-    } else if (error) {
-      return (
-        <Web3StatusError onClick={toggleWalletModal}>
-          <NetworkIcon />
-          <Text>{error instanceof UnsupportedChainIdError ? 'Wrong Network' : 'Error'}</Text>
-        </Web3StatusError>
-      )
-    } else {
-      return (
-        <Web3StatusConnect onClick={toggleWalletModal}>
-          <Text>{'Connect to a Wallet'}</Text>
-        </Web3StatusConnect>
-      )
+  const getChainName = (id) => {
+    const chains = {
+      1: 'Ethereum',
+      11155111: 'Sepolia',
+      42161: 'Arbitrum',
+      10: 'Optimism',
+      5: 'Goerli'
     }
+    return chains[id] || `Chain ${id}`
   }
 
-  if (!contextNetwork.active && !active) {
-    return null
+  if (isConnecting && !isConnected) {
+    return (
+      <StatusButton isConnected={false} disabled>
+        <LoadingSpinner />
+        <span>Connecting...</span>
+      </StatusButton>
+    )
   }
 
   return (
     <>
-      {getWeb3Status()}
-      <WalletModal ENSName={ENSName} />
+      <Web3StatusDiv>
+        {isConnected ? (
+          <div style={{ position: 'relative' }}>
+            <StatusButton
+              isConnected={true}
+              onClick={() => setShowDropdown(!showDropdown)}
+            >
+              <WalletIcon>{walletInfo?.icon}</WalletIcon>
+              <span>{formatAddress(account)}</span>
+              {chainId && <ChainBadge>{getChainName(chainId)}</ChainBadge>}
+            </StatusButton>
+
+            {showDropdown && (
+              <Dropdown>
+                <DropdownItem>
+                  <strong>Wallet</strong>
+                </DropdownItem>
+                <DropdownItem>{walletInfo?.name || 'Unknown'}</DropdownItem>
+
+                <DropdownItem>
+                  <strong>Address</strong>
+                </DropdownItem>
+                <DropdownItem>{formatAddress(account)}</DropdownItem>
+
+                <DropdownItem>
+                  <strong>Network</strong>
+                </DropdownItem>
+                <DropdownItem>{getChainName(chainId)}</DropdownItem>
+
+                <DropdownButton
+                  onClick={() => {
+                    disconnectWallet()
+                    setShowDropdown(false)
+                  }}
+                >
+                  Disconnect Wallet
+                </DropdownButton>
+              </Dropdown>
+            )}
+          </div>
+        ) : (
+          <StatusButton
+            isConnected={false}
+            onClick={() => setIsOpen(true)}
+          >
+            <WalletIcon>🔐</WalletIcon>
+            <span>Connect Wallet</span>
+          </StatusButton>
+        )}
+      </Web3StatusDiv>
+
+      <WalletSelector isOpen={isOpen} onClose={() => setIsOpen(false)} />
+
+      {showDropdown && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 40
+          }}
+          onClick={() => setShowDropdown(false)}
+        />
+      )}
     </>
   )
 }

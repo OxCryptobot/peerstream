@@ -1,10 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { ethers } from 'ethers'
-import { Web3ReactProvider, createWeb3ReactRoot } from '@web3-react/core'
 import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client'
-import { NetworkContextName } from './constants'
-import ThemeProvider from './theme'
 import { types, transitions, positions, Provider as AlertProvider } from 'react-alert'
 import AlertTemplate from 'react-alert-template-basic'
 import App from './pages/App'
@@ -13,16 +10,10 @@ import './index.css'
 import ApplicationContextProvider, { Updater as ApplicationContextUpdater } from './contexts/Application'
 import TokensContextProvider, { Updater as TokensContextUpdater } from './contexts/Tokens'
 import { CeramicProvider } from './contexts/Ceramic'
+import MultiWalletProvider from './contexts/MultiWallet'
+import ThemeProvider from './theme'
 
 require('./App.css')
-
-const Web3ProviderNetwork = createWeb3ReactRoot(NetworkContextName)
-
-function getLibrary(provider) {
-  const library = new ethers.BrowserProvider(provider)
-  library.pollingInterval = 10000
-  return library
-}
 
 // Alert configuration
 const alertOptions = {
@@ -41,13 +32,15 @@ const client = new ApolloClient({
 
 function ContextProviders({ children }) {
   return (
-    <ApplicationContextProvider>
-      <TokensContextProvider>
-        <CeramicProvider>
-          {children}
-        </CeramicProvider>
-      </TokensContextProvider>
-    </ApplicationContextProvider>
+    <MultiWalletProvider>
+      <ApplicationContextProvider>
+        <TokensContextProvider>
+          <CeramicProvider>
+            {children}
+          </CeramicProvider>
+        </TokensContextProvider>
+      </ApplicationContextProvider>
+    </MultiWalletProvider>
   )
 }
 
@@ -64,19 +57,15 @@ const root = ReactDOM.createRoot(document.getElementById('root'))
 
 root.render(
   <React.StrictMode>
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <Web3ProviderNetwork getLibrary={getLibrary}>
-        <ContextProviders>
-          <Updaters />
-          <ThemeProvider>
-            <ApolloProvider client={client}>
-              <AlertProvider template={AlertTemplate} {...alertOptions}>
-                <App />
-              </AlertProvider>
-            </ApolloProvider>
-          </ThemeProvider>
-        </ContextProviders>
-      </Web3ProviderNetwork>
-    </Web3ReactProvider>
+    <ContextProviders>
+      <Updaters />
+      <ThemeProvider>
+        <ApolloProvider client={client}>
+          <AlertProvider template={AlertTemplate} {...alertOptions}>
+            <App />
+          </AlertProvider>
+        </ApolloProvider>
+      </ThemeProvider>
+    </ContextProviders>
   </React.StrictMode>
 )
