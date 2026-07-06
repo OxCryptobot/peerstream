@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@apollo/client": "3.8.10",
+    "@livekit/components-react": "^2.9.21",
     "@reach/dialog": "0.18.0",
     "@reach/tooltip": "0.18.0",
     "@testing-library/jest-dom": "6.1.5",
@@ -29,6 +30,7 @@
     "ethers": "6.10.0",
     "events": "^3.3.0",
     "graphql": "16.8.0",
+    "livekit-client": "^2.20.0",
     "lodash": "^4.17.21",
     "polished": "^4.2.2",
     "react": "18.3.1",
