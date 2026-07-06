@@ -278,3 +278,6 @@ export function usePrevious(value) {
   // Return previous value (happens before update in useEffect above)
   return ref.current
 }
+
+// Import and export useChain for blockchain network management
+export { useChain, SUPPORTED_NETWORKS } from './useChain'

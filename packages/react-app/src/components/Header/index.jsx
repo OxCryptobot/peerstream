@@ -1,6 +1,8 @@
 import React from 'react'
 import styled from 'styled-components'
 import HeaderNavigation from '../HeaderNavigation'
+import NetworkSwitcher from '../NetworkSwitcher'
+import ChainIndicator from '../ChainIndicator'
 import { ExternalLink } from '../../theme'
 import Web3Status from '../Web3Status'
 
@@ -84,6 +86,8 @@ export default function Header() {
         </Title>
       </HeaderElement>
       <HeaderElement>
+        <ChainIndicator compact={true} />
+        <NetworkSwitcher compact={false} />
         <Web3Status />
       </HeaderElement>
     </HeaderFrame>
