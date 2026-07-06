@@ -40,9 +40,14 @@ function HeaderNavigation() {
           <StyledLink to={"/home"} id="navigation">Home</StyledLink>
         </HeaderNavigationLink>
         {library ? 
-          <HeaderNavigationLink>
-            <StyledLink to={"/discover"} id="navigation">Discover</StyledLink>
-          </HeaderNavigationLink>
+          <>
+            <HeaderNavigationLink>
+              <StyledLink to={"/discover"} id="navigation">Discover</StyledLink>
+            </HeaderNavigationLink>
+            <HeaderNavigationLink>
+              <StyledLink to={"/profile"} id="navigation">Profile</StyledLink>
+            </HeaderNavigationLink>
+          </>
         : null}
       </>
     )

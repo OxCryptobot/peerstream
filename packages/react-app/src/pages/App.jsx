@@ -4,6 +4,7 @@ import styled from 'styled-components'
 import { Home } from './Home'
 import { Discover } from './Discover'
 import { Meeting } from './Meeting'
+import { MyProfile } from './MyProfile'
 import { useWeb3React } from '@web3-react/core'
 import Web3ReactManager from '../components/Web3ReactManager'
 
@@ -75,6 +76,7 @@ export default function App() {
                       <Route path="/" element={<Home />} />
                       <Route path="/home" element={<Home />} />
                       <Route path="/discover" element={<Discover />} />
+                      <Route path="/profile" element={<MyProfile />} />
                       <Route path="/meeting" element={<Meeting />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>

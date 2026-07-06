@@ -76,6 +76,62 @@ export function CeramicProvider({ children }) {
     )
   }
 
+  // Update existing profile
+  const updateProfile = async (profileData) => {
+    if (!account) {
+      throw new Error('Wallet not connected')
+    }
+
+    try {
+      setLoading(true)
+      const currentProfile = profiles[account.toLowerCase()] || {}
+      const updatedProfiles = {
+        ...profiles,
+        [account.toLowerCase()]: {
+          ...currentProfile,
+          ...profileData,
+          address: account.toLowerCase(),
+          updatedAt: new Date().toISOString()
+        }
+      }
+      setProfiles(updatedProfiles)
+      localStorage.setItem('peerProfiles', JSON.stringify(updatedProfiles))
+      return updatedProfiles[account.toLowerCase()]
+    } catch (err) {
+      setError(err.message)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Delete current user's profile
+  const deleteProfile = async () => {
+    if (!account) {
+      throw new Error('Wallet not connected')
+    }
+
+    try {
+      setLoading(true)
+      const updatedProfiles = { ...profiles }
+      delete updatedProfiles[account.toLowerCase()]
+      setProfiles(updatedProfiles)
+      localStorage.setItem('peerProfiles', JSON.stringify(updatedProfiles))
+      return true
+    } catch (err) {
+      setError(err.message)
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Check if profile exists
+  const hasProfile = () => {
+    if (!account) return false
+    return !!profiles[account.toLowerCase()]
+  }
+
   return (
     <CeramicContext.Provider
       value={{
@@ -83,10 +139,13 @@ export function CeramicProvider({ children }) {
         loading,
         error,
         saveProfile,
+        updateProfile,
+        deleteProfile,
         getMyProfile,
         getPeerProfile,
         getAllProfiles,
-        getPeerList
+        getPeerList,
+        hasProfile
       }}
     >
       {children}
