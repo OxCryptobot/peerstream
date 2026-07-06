@@ -9,16 +9,22 @@
     "dev": "nodemon server.js",
     "worker": "node workers/index.js",
     "worker:dev": "nodemon workers/index.js",
+    "db:init": "node scripts/db-init.js",
+    "db:init:seed": "node scripts/db-init.js --seed",
+    "db:migrate": "node scripts/db-init.js",
+    "db:reset": "node scripts/db-reset.js",
     "migrate": "node migrations/run.js",
     "migrate:status": "node migrations/run.js --status",
     "seed": "node scripts/seed.js",
+    "setup": "npm run db:init && npm run seed",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "build": "npm run lint && npm run test",
-    "heroku-postbuild": "npm run migrate"
+    "queue:health": "node -e \"import('./lib/messageQueue.js').then(m => m.getQueueManager().getAllStats()).then(s => console.log(JSON.stringify(s, null, 2)))\"",
+    "heroku-postbuild": "npm run db:migrate"
   },
   "dependencies": {
     "bull": "^4.11.0",
