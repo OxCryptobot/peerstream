@@ -13,6 +13,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Step 2: Install dependencies (only production)
+# Use npm install (not npm ci) to regenerate lock file if needed
+# This ensures compatibility with monorepo structure
 RUN npm install --omit=dev --legacy-peer-deps 2>&1 && npm cache clean --force
 
 # Step 3: Copy backend source
