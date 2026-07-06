@@ -1,5 +1,6 @@
 {
-  "name": "@sablier-app/contracts",
+  "name": "@paytray/contracts",
   "version": "1.0.0",
+  "description": "PayTray Smart Contracts",
   "main": "./src/index.js"
 }

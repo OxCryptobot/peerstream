@@ -7,52 +7,67 @@ import Web3Status from '../Web3Status'
 const HeaderFrame = styled.div`
   display: flex;
   width: 100vw;
-  height: 64px;
+  height: 70px;
   align-items: center;
   justify-content: space-between;
-  background: #F9F8EB;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F3F4F6 100%);
+  border-bottom: 2px solid #E5E7EB;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 0 1.5rem;
 `
 
 const HeaderElement = styled.div`
-  margin: 1.25rem;
   display: flex;
   min-width: 0;
-  display: flex;
   align-items: center;
+  gap: 2rem;
 `
 
-const Rotate = styled.span`
-  transform: rotate(0deg);
-  transition: transform 1s ease-out;
-  :hover {
-    transform: rotate(360deg);
+const LogoIcon = styled.span`
+  font-size: 1.8rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
   }
 `
 
 const Title = styled.div`
   display: flex;
   align-items: center;
-  :hover {
-    cursor: pointer;
-  }
+  gap: 0.75rem;
+  
   #link {
-    text-decoration-color: ${({ theme }) => theme.primaryGreen};
+    text-decoration: none;
+    color: #1E40AF;
+    transition: all 0.3s ease;
+    &:hover {
+      color: #7C3AED;
+    }
   }
+  
   #title {
     display: inline;
-    font-size: 1rem;
-    font-weight: 500;
-    margin-right: 25px;
-    color: ${({ theme }) => theme.primaryGreen};
-
-
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: #1E40AF;
+    background: linear-gradient(135deg, #1E40AF 0%, #7C3AED 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
   }
+  
   #navigation {
     display: inline;
     font-size: 1rem;
     font-weight: 500;
-    margin-right: 15px;
-    color: ${({ theme }) => theme.primaryGreen};
+    color: #6B7280;
+    transition: color 0.3s ease;
+    &:hover {
+      color: #1E40AF;
+    }
   }
 `
 
@@ -61,15 +76,9 @@ export default function Header() {
     <HeaderFrame>
       <HeaderElement>
         <Title>
-          <Rotate>
-            <ExternalLink id="link" href="https://github.com/nichanank/peerstream">
-              <span role="img" aria-label="lightning">
-                ⚡{'  '}
-              </span>
-            </ExternalLink>
-          </Rotate>
-          <ExternalLink id="link" href="https://github.com/nichanank/peerstream">
-            <h1 id="title">Peer Stream</h1>
+          <LogoIcon>💳</LogoIcon>
+          <ExternalLink id="link" href="/">
+            <h1 id="title">PayTray</h1>
           </ExternalLink>
           <HeaderNavigation />
         </Title>

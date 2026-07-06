@@ -39,17 +39,30 @@ const theme = () => ({
   white,
   black,
   inputBackground: white,
-  placeholderGray: '#E1E1E1',
-  shadowColor: '#2F80ED',
+  placeholderGray: '#E5E7EB',
+  shadowColor: '#1E40AF',
 
-  // pink
-  pink: '#DC6BE5',
-  // greens
-  darkMint: '#67ce81',
-  primaryGreen: '#155E63',
-  secondaryGreen: '#76B39D',
-  tertiaryGreen: '#F9F8EB',
-  connectedGreen: '#27AE60',
+  // PayTray Modern Fintech Color Palette
+  primaryBlue: '#1E40AF',        // Deep trust blue
+  accentPurple: '#7C3AED',        // Vibrant modern purple
+  tertiaryChyan: '#06B6D4',       // Forward-thinking cyan
+  
+  // Supporting colors (deprecated old names for compatibility)
+  primaryGreen: '#1E40AF',        // Maps to primary blue
+  secondaryGreen: '#06B6D4',      // Maps to cyan
+  tertiaryGreen: '#F3F4F6',       // Light neutral background
+  darkMint: '#06B6D4',
+  pink: '#7C3AED',
+  connectedGreen: '#10B981',
+  
+  // Background colors
+  bgLight: '#F9FAFB',
+  bgDark: '#111827',
+  
+  // Success/Error
+  success: '#10B981',
+  error: '#EF4444',
+  warning: '#F59E0B',
 
   // media queries
   mediaWidth: mediaWidthTemplates,
@@ -78,12 +91,12 @@ export const GlobalStyle = createGlobalStyle`
     height: 100%;
     overflow: scroll;
     -webkit-overflow-scrolling: touch;
-}
+  }
   html {
     font-size: 16px;
     font-variant: none;
-    color: ${({ theme }) => theme.textColor};
-    background-color: ${({ theme }) => theme.backgroundColor};
+    color: #1F2937;
+    background-color: #F9FAFB;
     transition: color 150ms ease-out, background-color 150ms ease-out;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

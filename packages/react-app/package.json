@@ -1,6 +1,7 @@
 {
-  "name": "@sablier-app/react-app",
+  "name": "@paytray/react-app",
   "version": "2.0.0",
+  "description": "PayTray React Application - Expert Marketplace",
   "type": "module",
   "browserslist": {
     "production": [

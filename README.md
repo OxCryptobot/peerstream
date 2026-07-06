@@ -1,52 +1,149 @@
-# ⚡️ Peer Stream
+# 💳 PayTray
 
-Peer Stream utilizes payment streams to link **TIME** with **MONEY**, giving freelancers and clients more freedom and flexibility to engage with each other than ever before. Instead of paying lump-sum for services, payment streams give individuals the flexibility to *stream* funds to people for their time. They can agree on any ERC-20 currency and start/stop the payment stream at any time. Service providers can withdraw from the stream instantaneously.
+**Pay with Purpose** - Connect with expert freelancers, collaborate in real-time, and get paid instantly on blockchain.
 
-See the live demo at https://peerstream.netlify.app. At the moment, payment streams only work with Testnet DAI. Find out how you can mint yourself some Testnet DAI in the [development](#-development) section. There is also a project [pitch deck](https://docs.google.com/presentation/d/1S2CCW2DdWwrYU8zxMr-aE4jSuIp8VPjEt_rRnOPEN4Y) made for a hackathon but its contents are pretty much identical to this readme.
+PayTray is a next-generation platform that synergizes **expert discovery**, **real-time communication**, and **instant blockchain payments** into one seamless experience. Built on Ethereum and powered by Sablier for payment streams, PayTray eliminates friction from freelance engagement.
 
-## 📖 How it Works
+## 🎯 Core Features
 
-The Peer Discovery Platform allows individuals to connect with with mentors, consultants, beta testers, domain specialists, and all kinds of experts that can help them achieve their goals.
+### For Service Providers (Experts)
+1. **Create Your Profile** - Showcase your expertise, rates, and social links
+2. **Get Discovered** - Appear in the marketplace for clients seeking your skills
+3. **Real-Time Collaboration** - Video chat, messaging, and screen sharing with clients
+4. **Instant Earnings** - Receive payments via payment streams, withdraw anytime
+5. **Multi-Chain Support** - Accept payments on Ethereum, Arbitrum, Optimism, and more
 
-### Service Providers
-1. Connect 3Box account
-2. Add a note about your expertise
-3. Get contacted by potential clients
-4. Start a 1-1 video chat
-5. Continuous payroll. Withdraw from the stream any time
+### For Clients
+1. **Browse Experts** - Discover top talent filtered by expertise and availability
+2. **Connect Instantly** - Message, video call, and share screens with providers
+3. **Payment Streams** - Pay per minute with full control - start, pause, or cancel anytime
+4. **No Hidden Fees** - Direct blockchain payments with transparent on-chain transactions
+5. **Flexible & Secure** - Payments managed by smart contracts, funds always in your control
 
-### Clients
-1. Browse for peers that might be able to lend a hand
-2. Start a direct messaging channel with peers
-3. Get on a 1-1 video chat
-4. Start a payment stream for their services
-5. Pay-as-you-go, cancel the stream any time
+## 💡 The PayTray Advantage
 
-As the payer, you can set the total amount, start time and stop time of the payment stream. Every minute between the start and stop time, your deposit will incrementally be allocated to the recipient. The recipient can withdraw from the payment stream whenever they want, and the sender can cancel the stream whenever they want. If the stream is cancelled before the stated stop time, the "streamed" funds are sent automatically to the recipient and the sender gets back the remaining funds.
+### Smart Payment Streams
+- **Pay-as-you-go**: No lump sum commitments. Stop anytime.
+- **Any ERC-20 Token**: Choose your payment currency (USDC, DAI, USDT, etc.)
+- **Instant Withdrawals**: Service providers withdraw funds in real-time
+- **Full Transparency**: All transactions on-chain, auditable and trustless
 
-### 💸 The Power of Payment Streams
-- Flexible in when you pay and what you pay with. Streams work with any ERC-20 token
-- No lump sum payments. Clients can minimize loss by cancelling early if the engagement is not working out
-- Recipients can withdraw from the payment stream whenever they want
-- Instead of having to wait for biweekly or monthly paychecks, payment streams turn every day into payday
+### Decentralized Profiles
+- **Ceramic Network**: Your profile data is yours - stored decentralized
+- **Portable Reputation**: Build reputation that follows you across applications
+- **Privacy First**: Only share what you want to share
+- **Self-Sovereign Identity**: No intermediary controls your data
 
-### 💁🏻‍♀️ Decentralized User Profiles and Data
-- User profile information and private chat history secure and decentralized data storage system
-- Use your existing social identity instead of creating yet another account that is siloed on one platform
-- Freelancers can earn reputation as a peer and take this reputation with them across applications
-- 1-1 chat history is managed via encrypted threads stored on IPFS, only readable by the peers involved
+### Real-Time Communication
+- **Video & Messaging**: Built with LiveKit for high-quality real-time communication
+- **End-to-End Encryption**: Your conversations stay private
+- **Screen Sharing**: Collaborate on code, designs, and documents
+- **Recording Support**: Archive important calls and meetings
 
-## 🛠 Technology
+## 🏗️ Architecture
 
-- Payment streams are handled by [Sablier](https://sablier.finance/) - The protocol for real-time finance on the Ethereum blockchain.
-- Peer profiles and P2P chat is handled by [3box](https://3box.io) - A next-generation framework for managing user data on the internet.
-- Video chats utilze [WebRTC](https://webrtc.org/) technology via [PeerJS](https://peerjs.com/)
+### Phase 3a: Peer Discovery ✅ COMPLETE
+- Expert marketplace with profile management
+- Ceramic-based decentralized profile storage
+- Responsive peer grid UI with modern fintech design
 
-### What is Sablier?
-Sablier is a protocol for real-time finance. It is this protocol that makes payment streams to be possible. A payer's deposit is sent to the Sablier smart contract, which handles the "streaming", or incremental allocation of deposited funds over the time period specified by the creator of the payment stream. The recipient can withdraw from the payment stream at any time.
+### Phase 3a.5: Profile Management (IN PROGRESS)
+- User profile creation and editing
+- Portfolio showcase
+- Rating and review system
 
-### What is 3Box?
-3Box is a secure and decentralized user data storage system. It allows for the development of fully-featured applications without needing to run a backend for handling user data. In exploring the possibilities of this, this project was built without a database. Instead, users' profile information, as well as private chat history, are stored on IPFS via 3Box.
+### Phase 3b: Real-Time Communication (PLANNED)
+- LiveKit integration for video/messaging
+- Meeting scheduling
+- Session recordings
+
+### Phase 3c: Multi-Chain Support (PLANNED)
+- Network switcher UI
+- Multi-chain payment support
+- Yield farming optimization
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **React 18.3.1** - Modern UI framework with concurrent rendering
+- **Vite 5.0** - Lightning-fast build and dev server
+- **styled-components** - Component-scoped styling
+- **ethers.js v6** - Web3 integration
+- **@web3-react** - Wallet connection management
+
+### Blockchain
+- **Ethereum & EVM Chains** - Multi-chain support
+- **Sablier** - Payment stream protocol
+- **Smart Contracts** - Payment automation
+
+### Decentralized Storage
+- **Ceramic Network** - Profile data storage
+- **IPFS** - Content addressing (via Ceramic)
+
+### Real-Time Communication (Phase 3b)
+- **LiveKit** - Video & messaging infrastructure
+
+## 🚀 Quick Start
+
+### Prerequisites
+- Node.js >= 18
+- npm >= 11
+- A Web3 wallet (MetaMask, Ledger, etc.)
+
+### Installation
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run react-app:start
+
+# Build for production
+npm run react-app:build
+```
+
+### Environment Setup
+Copy `.env.local` and configure:
+```env
+VITE_APP_NAME=PayTray
+VITE_CERAMIC_URL=http://localhost:7007
+VITE_LIVEKIT_URL=wss://livekit.example.com
+```
+
+## 📊 Project Status
+
+| Phase | Component | Status |
+|-------|-----------|--------|
+| 3a | Peer Discovery | ✅ Complete |
+| 3a.5 | Profile Management | 🔄 In Progress |
+| 3b | Real-Time Communication | ⏳ Planned |
+| 3c | Multi-Chain Support | ⏳ Planned |
+
+## 🎨 Design System
+
+**Modern Fintech Theme:**
+- Primary: Deep Blue (`#1E40AF`)
+- Accent: Vibrant Purple (`#7C3AED`)
+- Tertiary: Cyan (`#06B6D4`)
+- Typography: Inter font family
+- Responsive: Mobile-first design
+
+## 📝 License
+
+MIT License - See [LICENSE](LICENSE) for details
+
+## 🤝 Contributing
+
+Contributions are welcome! Please fork, create a feature branch, and submit a pull request.
+
+## 💬 Support
+
+For issues, questions, or suggestions, please open a GitHub issue or reach out to the team.
+
+---
+
+**PayTray** - *Pay with Purpose* 💳
+
 
 ## 👩🏻‍💻 Development
 
